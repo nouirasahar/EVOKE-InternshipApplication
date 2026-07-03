@@ -42,9 +42,9 @@ export const AuthInput = forwardRef<HTMLInputElement, Props>(function AuthInput(
             type="button"
             onClick={() => setVisible((v) => !v)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
-            aria-label={visible ? "Hide password" : "Show password"}
+            aria-label={visible ? "Show password" : "Hide password" }
           >
-            {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {visible ? <Eye className="h-4 w-4" />: <EyeOff className="h-4 w-4" /> }
           </button>
         )}
       </div>

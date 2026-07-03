@@ -6,8 +6,8 @@ import { VoiceStudio } from "@/components/sections/VoiceStudio";
 import { Workflow } from "@/components/sections/Workflow";
 import { AgentArchitecture } from "@/components/sections/AgentArchitecture";
 import { Features } from "@/components/sections/Features";
-import { DemoPreview } from "@/components/sections/DemoPreview";
-import { authRoutes } from "@/routes/authRoutes";
+import { authRoutes } from "./routes/authRoutes";
+
 
 function Landing() {
   return (
@@ -19,7 +19,6 @@ function Landing() {
         <Workflow />
         <AgentArchitecture />
         <Features />
-        <DemoPreview />
       </main>
       <Footer />
     </div>

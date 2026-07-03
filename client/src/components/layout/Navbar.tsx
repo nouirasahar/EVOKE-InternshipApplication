@@ -9,7 +9,7 @@ const links = [
   { href: "/#workflow", label: "Workflow" },
   { href: "/#agents", label: "Agents" },
   { href: "/#features", label: "Features" },
-  { href: "/#studio", label: "Studio" },
+  { href: "/#studio", label: "voice-studio" },
 ];
 
 export function Navbar() {
@@ -45,7 +45,6 @@ export function Navbar() {
             </Link>
             <Link to="/signup" className="hidden sm:inline-flex">
               <Button>
-                <Sparkles className="h-4 w-4" />
                 Get Started
               </Button>
             </Link>

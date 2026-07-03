@@ -1,0 +1,77 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Mail, Lock } from "lucide-react";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { AuthInput } from "@/components/auth/AuthInput";
+import { AuthButton } from "@/components/auth/AuthButton";
+import { validateLogin, type Errors } from "@/utils/authValidation";
+
+export default function LoginPage() {
+  const [values, setValues] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState<Errors>({});
+  const [loading, setLoading] = useState(false);
+
+  const onChange = (name: string, value: string) =>
+    setValues((v) => ({ ...v, [name]: value }));
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const found = validateLogin(values);
+    setErrors(found);
+    if (Object.keys(found).length) return;
+    setLoading(true);
+    setTimeout(() => setLoading(false), 900);
+  };
+
+  return (
+    <AuthLayout>
+      <AuthCard title="Welcome back" subtitle="Sign in to continue building with EVOKE.">
+        <form onSubmit={onSubmit} className="space-y-4" noValidate>
+          <AuthInput
+            label="Email"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            icon={<Mail className="h-4 w-4" />}
+            value={values.email}
+            onChange={(e) => onChange("email", e.target.value)}
+            error={errors.email}
+            autoComplete="email"
+          />
+          <AuthInput
+            label="Password"
+            name="password"
+            placeholder="••••••••"
+            icon={<Lock className="h-4 w-4" />}
+            togglePassword
+            value={values.password}
+            onChange={(e) => onChange("password", e.target.value)}
+            error={errors.password}
+            autoComplete="current-password"
+          />
+
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              className="text-xs text-muted-foreground transition hover:text-foreground"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
+          <AuthButton type="submit" loading={loading}>
+            Sign in
+          </AuthButton>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          New to EVOKE?{" "}
+          <Link to="/signup" className="text-foreground underline-offset-4 hover:underline">
+            Create an account
+          </Link>
+        </p>
+      </AuthCard>
+    </AuthLayout>
+  );
+}

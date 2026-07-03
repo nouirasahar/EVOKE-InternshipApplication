@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { generateToken } from "../utils/token.js";
+import { sendVerificationEmail } from "../services/email.service.js";
 
 export const signup = async (req, res) => {
   try {
@@ -17,15 +19,20 @@ export const signup = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = generateToken();
 
     const user = await User.create({
       fullName,
       email,
       password: hashedPassword,
+      verificationToken,
+      verificationTokenExpires: Date.now() + 1000 * 60 * 60 * 24,
     });
 
+    await sendVerificationEmail(user.email, verificationToken);
+
     return res.status(201).json({
-      message: "Account created successfully.",
+      message: "Account created successfully. Please verify your email.",
       user: {
         id: user._id,
         fullName: user.fullName,
@@ -58,6 +65,12 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        message: "Please verify your email before logging in.",
+      });
+    }
+
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET,
@@ -73,6 +86,35 @@ export const login = async (req, res) => {
         email: user.email,
         emailVerified: user.emailVerified,
       },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid or expired verification token.",
+      });
+    }
+
+    user.emailVerified = true;
+    user.verificationToken = null;
+    user.verificationTokenExpires = null;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Email verified successfully. You can now log in.",
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthCard } from "@/components/auth/AuthCard";
@@ -7,26 +7,42 @@ import { AuthInput } from "@/components/auth/AuthInput";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { AuthMessage } from "@/components/auth/AuthMessage";
 import { validateReset, type Errors } from "@/utils/authValidation";
+import { resetPassword } from "@/services/auth.service";
 
 export default function ResetPasswordPage() {
+  const { token } = useParams();
   const [values, setValues] = useState({ password: "", confirm: "" });
   const [errors, setErrors] = useState<Errors>({});
+  const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
-  const onChange = (name: string, value: string) =>
+  const onChange = (name: string, value: string) => {
     setValues((v) => ({ ...v, [name]: value }));
+    setServerError("");
+  };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!token) {
+      setServerError("Reset token is missing.");
+      return;
+    }
+
     const found = validateReset(values);
     setErrors(found);
     if (Object.keys(found).length) return;
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      setLoading(true);
+      await resetPassword(token, values.password);
       setDone(true);
-    }, 800);
+    } catch (error) {
+      setServerError(error instanceof Error ? error.message : "Password reset failed.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,13 +50,21 @@ export default function ResetPasswordPage() {
       <AuthCard title="Set a new password" subtitle="Choose a strong password of at least 8 characters.">
         {done ? (
           <div className="space-y-6">
-            <AuthMessage title="Password updated successfully." />
+            <AuthMessage
+              variant="success"
+              title="Password updated successfully."
+              description="You can now sign in with your new password."
+            />
             <Link to="/login">
               <AuthButton type="button">Back to sign in</AuthButton>
             </Link>
           </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4" noValidate>
+            {serverError && (
+              <AuthMessage variant="error" title="Reset failed" description={serverError} />
+            )}
+
             <AuthInput
               label="New password"
               name="password"
@@ -52,6 +76,7 @@ export default function ResetPasswordPage() {
               error={errors.password}
               autoComplete="new-password"
             />
+
             <AuthInput
               label="Confirm new password"
               name="confirm"
@@ -63,6 +88,7 @@ export default function ResetPasswordPage() {
               error={errors.confirm}
               autoComplete="new-password"
             />
+
             <AuthButton type="submit" loading={loading}>
               Update password
             </AuthButton>

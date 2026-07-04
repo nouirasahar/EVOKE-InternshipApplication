@@ -1,33 +1,67 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthInput } from "@/components/auth/AuthInput";
 import { AuthButton } from "@/components/auth/AuthButton";
+import { AuthMessage } from "@/components/auth/AuthMessage";
 import { validateLogin, type Errors } from "@/utils/authValidation";
+import { login } from "@/services/auth.service";
 
 export default function LoginPage() {
   const [values, setValues] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Errors>({});
+  const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const onChange = (name: string, value: string) =>
-    setValues((v) => ({ ...v, [name]: value }));
+  const navigate = useNavigate();
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onChange = (name: string, value: string) => {
+    setValues((v) => ({ ...v, [name]: value }));
+    setServerError("");
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const found = validateLogin(values);
     setErrors(found);
     if (Object.keys(found).length) return;
-    setLoading(true);
-    setTimeout(() => setLoading(false), 900);
+
+    try {
+      setLoading(true);
+
+      await login({
+        email: values.email,
+        password: values.password,
+      });
+
+      navigate("/");
+    } catch (error) {
+      setServerError(
+        error instanceof Error ? error.message : "Login failed."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <AuthLayout>
-      <AuthCard title="Welcome back" subtitle="Sign in to continue building with EVOKE.">
+      <AuthCard
+        title="Welcome back"
+        subtitle="Sign in to continue building with EVOKE."
+      >
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
+          {serverError && (
+            <AuthMessage
+              variant="error"
+              title="Login failed"
+              description={serverError}
+            />
+          )}
+
           <AuthInput
             label="Email"
             name="email"
@@ -39,6 +73,7 @@ export default function LoginPage() {
             error={errors.email}
             autoComplete="email"
           />
+
           <AuthInput
             label="Password"
             name="password"
@@ -67,7 +102,10 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           New to EVOKE?{" "}
-          <Link to="/signup" className="text-foreground underline-offset-4 hover:underline">
+          <Link
+            to="/signup"
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             Create an account
           </Link>
         </p>

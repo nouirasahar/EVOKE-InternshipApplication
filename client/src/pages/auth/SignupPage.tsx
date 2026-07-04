@@ -7,33 +7,63 @@ import { AuthInput } from "@/components/auth/AuthInput";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { AuthMessage } from "@/components/auth/AuthMessage";
 import { validateSignup, type Errors } from "@/utils/authValidation";
+import { signup } from "@/services/auth.service";
 
 export default function SignupPage() {
-  const [values, setValues] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [values, setValues] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirm: "",
+  });
+
   const [errors, setErrors] = useState<Errors>({});
+  const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  const onChange = (name: string, value: string) =>
+  const onChange = (name: string, value: string) => {
     setValues((v) => ({ ...v, [name]: value }));
+    setServerError("");
+  };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const found = validateSignup(values);
     setErrors(found);
     if (Object.keys(found).length) return;
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      setLoading(true);
+
+      await signup({
+        fullName: values.name,
+        email: values.email,
+        password: values.password,
+      });
+
       setSuccess(true);
-      setTimeout(() => navigate("/verify-email"), 1500);
-    }, 900);
+
+      setTimeout(() => {
+        navigate("/verify-email");
+      }, 1500);
+    } catch (error) {
+      setServerError(
+        error instanceof Error ? error.message : "Signup failed."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <AuthLayout>
-      <AuthCard title="Create your account" subtitle="Start turning ideas into working software.">
+      <AuthCard
+        title="Create your account"
+        subtitle="Start turning ideas into working software."
+      >
         {success ? (
           <AuthMessage
             title="Verification email sent."
@@ -41,6 +71,14 @@ export default function SignupPage() {
           />
         ) : (
           <form onSubmit={onSubmit} className="space-y-4" noValidate>
+            {serverError && (
+              <AuthMessage
+                title="Signup failed"
+                description={serverError}
+                variant="error"
+              />
+            )}
+
             <AuthInput
               label="Full name"
               name="name"
@@ -51,6 +89,7 @@ export default function SignupPage() {
               error={errors.name}
               autoComplete="name"
             />
+
             <AuthInput
               label="Email"
               name="email"
@@ -62,6 +101,7 @@ export default function SignupPage() {
               error={errors.email}
               autoComplete="email"
             />
+
             <AuthInput
               label="Password"
               name="password"
@@ -73,6 +113,7 @@ export default function SignupPage() {
               error={errors.password}
               autoComplete="new-password"
             />
+
             <AuthInput
               label="Confirm password"
               name="confirm"
@@ -93,7 +134,10 @@ export default function SignupPage() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="text-foreground underline-offset-4 hover:underline">
+          <Link
+            to="/login"
+            className="text-foreground underline-offset-4 hover:underline"
+          >
             Sign in
           </Link>
         </p>

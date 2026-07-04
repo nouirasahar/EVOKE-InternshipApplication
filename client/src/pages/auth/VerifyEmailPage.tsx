@@ -76,12 +76,6 @@ export default function VerifyEmailPage() {
           />
         )}
 
-        {!token && (
-          <AuthButton type="button">
-            I have verified my email
-          </AuthButton>
-        )}
-
         <p className="mt-6 text-center text-sm text-muted-foreground">
           <Link to="/login" className="text-foreground hover:underline">
             Go to sign in

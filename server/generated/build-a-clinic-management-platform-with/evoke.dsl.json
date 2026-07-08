@@ -1,0 +1,45 @@
+{
+  "projectName": "build-a-clinic-management-platform-with-",
+  "originalPrompt": "Build a clinic management platform with patients, doctors and appointments",
+  "app": {
+    "name": "build-a-clinic-management-platform-with-",
+    "type": "full-stack-web-application",
+    "description": "Build a clinic management platform with patients, doctors and appointments"
+  },
+  "pages": [
+    {
+      "name": "Dashboard",
+      "route": "/",
+      "components": [
+        "Header",
+        "StatsCards",
+        "DataTable"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "name": "Item",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "features": [
+    "create",
+    "read",
+    "update",
+    "delete"
+  ]
+}

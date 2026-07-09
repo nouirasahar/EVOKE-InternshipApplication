@@ -1,0 +1,9 @@
+{
+  "name": "i-want-to-build-an-e-commerce-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "I want to build  an e-commerce  platform",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

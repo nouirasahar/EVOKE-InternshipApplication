@@ -1,0 +1,9 @@
+{
+  "name": "i-want-a-platform-that-creates-users-ins",
+  "version": "1.0.0",
+  "private": true,
+  "description": " I want a platform that creates users inside the platform in a way that the database is well connected to the DB.",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

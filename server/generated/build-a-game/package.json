@@ -1,0 +1,9 @@
+{
+  "name": "build-a-game",
+  "version": "1.0.0",
+  "private": true,
+  "description": "build a game\n",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

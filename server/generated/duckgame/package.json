@@ -1,0 +1,9 @@
+{
+  "name": "duckgame",
+  "version": "1.0.0",
+  "private": true,
+  "description": "duckgame",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

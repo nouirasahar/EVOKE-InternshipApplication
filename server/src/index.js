@@ -6,13 +6,19 @@ import { connectDB } from "./config/database.js";
 import generateRoutes from "./routes/generate.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import transcriptionRoutes from "./routes/transcription.routes.js";
 dotenv.config();
 
 connectDB();
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:8080", "http://127.0.0.1:8080"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -23,6 +29,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/generate", generateRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/users", userRoutes);
+
+app.use("/api/transcription", transcriptionRoutes);
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

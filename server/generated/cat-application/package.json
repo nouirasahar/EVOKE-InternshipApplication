@@ -1,0 +1,9 @@
+{
+  "name": "cat-application",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CAT APPLICATION",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

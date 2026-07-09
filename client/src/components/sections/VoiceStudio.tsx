@@ -3,27 +3,40 @@ import { Mic, Send, Type, Play, Square, CheckCircle2, Loader2 } from "lucide-rea
 import { Button } from "@/components/ui/Button";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { pipelineStages } from "@/data/workflow";
+import { generateApplication } from "@/services/generate.service";
+import { transcribeAudio } from "@/services/transcription.service";
 
 type Mode = "voice" | "text";
-
-type SpeechRecognitionWindow = Window & {
-  webkitSpeechRecognition?: any;
-  SpeechRecognition?: any;
-};
 
 export function VoiceStudio() {
   const [mode, setMode] = useState<Mode>("voice");
   const [prompt, setPrompt] = useState("");
-  const [speechLanguage, setSpeechLanguage] = useState("en-US");
+  const [speechLanguage, setSpeechLanguage] = useState("en");
   const [stage, setStage] = useState(-1);
 
-  function runPipeline() {
+  async function runPipeline() {
     if (!prompt.trim()) return;
 
-    setStage(0);
-    pipelineStages.forEach((_, i) => {
-      setTimeout(() => setStage(i + 1), (i + 1) * 550);
-    });
+    try {
+      setStage(0);
+
+      const data = await generateApplication({
+        prompt,
+        transcript: mode === "voice" ? prompt : undefined,
+        source: mode,
+        language: speechLanguage,
+      });
+
+      console.log("Generated application:", data);
+
+      pipelineStages.forEach((_, i) => {
+        setTimeout(() => setStage(i + 1), (i + 1) * 550);
+      });
+    } catch (error) {
+      console.error("Generation failed:", error);
+      alert(error instanceof Error ? error.message : "Generation failed.");
+      setStage(-1);
+    }
   }
 
   return (
@@ -101,58 +114,19 @@ function VoicePanel({
   language: string;
   setLanguage: (value: string) => void;
 }) {
-  const recognitionRef = useRef<any>(null);
-  const finalTranscriptRef = useRef("");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+
   const [isRecording, setIsRecording] = useState(false);
-  const [isSupported, setIsSupported] = useState(true);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [seconds, setSeconds] = useState(0);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const SpeechRecognition =
-      (window as SpeechRecognitionWindow).SpeechRecognition ||
-      (window as SpeechRecognitionWindow).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      setIsSupported(false);
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-
-    recognition.lang = language;
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    recognition.onresult = (event: any) => {
-      let interimTranscript = "";
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const text = event.results[i][0].transcript;
-
-        if (event.results[i].isFinal) {
-          finalTranscriptRef.current += text + " ";
-        } else {
-          interimTranscript += text;
-        }
-      }
-
-      setTranscript((finalTranscriptRef.current + interimTranscript).trim());
-    };
-
-    recognition.onerror = () => {
-      setIsRecording(false);
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      recognition.stop();
-    };
-  }, [setTranscript, language]);
+  const isSupported =
+    typeof navigator !== "undefined" &&
+    !!navigator.mediaDevices &&
+    typeof MediaRecorder !== "undefined";
 
   useEffect(() => {
     if (!isRecording) return;
@@ -164,19 +138,62 @@ function VoicePanel({
     return () => clearInterval(interval);
   }, [isRecording]);
 
-  function startRecording() {
-    if (!recognitionRef.current) return;
+  async function startRecording() {
+    if (!isSupported) return;
 
-    finalTranscriptRef.current = transcript ? transcript + " " : "";
-    setSeconds(0);
-    setIsRecording(true);
-    recognitionRef.current.start();
+    try {
+      setError("");
+      setSeconds(0);
+      audioChunksRef.current = [];
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const recorder = new MediaRecorder(stream, {
+        mimeType: "audio/webm",
+      });
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        try {
+          setIsTranscribing(true);
+
+          const audioBlob = new Blob(audioChunksRef.current, {
+            type: "audio/webm",
+          });
+
+          const data = await transcribeAudio(audioBlob);
+
+          setTranscript(data.text || "");
+        } catch (err) {
+          console.error("Transcription failed:", err);
+          setError(err instanceof Error ? err.message : "Transcription failed.");
+        } finally {
+          setIsTranscribing(false);
+
+          streamRef.current?.getTracks().forEach((track) => track.stop());
+          streamRef.current = null;
+        }
+      };
+
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Microphone error:", err);
+      setError("Microphone access denied or unavailable.");
+    }
   }
 
   function stopRecording() {
-    if (!recognitionRef.current) return;
+    if (!mediaRecorderRef.current) return;
 
-    recognitionRef.current.stop();
+    mediaRecorderRef.current.stop();
     setIsRecording(false);
   }
 
@@ -190,7 +207,7 @@ function VoicePanel({
   if (!isSupported) {
     return (
       <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
-        Speech recognition is not supported in this browser. Use Google Chrome or Microsoft Edge.
+        Audio recording is not supported in this browser. Please use a modern browser.
       </div>
     );
   }
@@ -205,28 +222,29 @@ function VoicePanel({
         <select
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
-          disabled={isRecording}
+          disabled={isRecording || isTranscribing}
           className="w-full rounded-xl border border-border bg-black/30 p-3 font-mono text-sm text-foreground focus:border-electric focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <option value="en-US">English</option>
-          <option value="fr-FR">French</option>
-          <option value="ar-SA">Arabic</option>
+          <option value="en">English</option>
+          <option value="fr">French</option>
+    
         </select>
       </div>
 
       <div className="relative">
-        {isRecording && (
+        {(isRecording || isTranscribing) && (
           <div className="absolute inset-0 animate-pulse-ring rounded-full bg-brand blur-2xl" />
         )}
 
         <button
           onClick={isRecording ? stopRecording : startRecording}
-          className={`relative grid h-28 w-28 place-items-center rounded-full text-white shadow-brand transition hover:scale-105 sm:h-32 sm:w-32 ${
+          disabled={isTranscribing}
+          className={`relative grid h-28 w-28 place-items-center rounded-full text-white shadow-brand transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 sm:h-32 sm:w-32 ${
             isRecording ? "bg-red-500" : "bg-brand"
           }`}
           aria-label="Activate voice"
         >
-          <Mic className="h-12 w-12" />
+          {isTranscribing ? <Loader2 className="h-12 w-12 animate-spin" /> : <Mic className="h-12 w-12" />}
         </button>
       </div>
 
@@ -236,7 +254,11 @@ function VoicePanel({
             isRecording ? "animate-pulse bg-red-400" : "bg-cyan-glow"
           }`}
         />
-        {isRecording ? `Recording ${formatTime(seconds)}` : "Ready to listen"}
+        {isRecording
+          ? `Recording ${formatTime(seconds)}`
+          : isTranscribing
+          ? "Transcribing with Groq Whisper..."
+          : "Ready to record"}
       </p>
 
       <div className="mt-6 flex h-14 items-end gap-1">
@@ -266,6 +288,12 @@ function VoicePanel({
         )}
       </div>
 
+      {error && (
+        <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          {error}
+        </div>
+      )}
+
       <div className="mt-8 w-full">
         <label className="mb-2 block font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Voice transcription
@@ -274,7 +302,7 @@ function VoicePanel({
         <textarea
           value={transcript}
           onChange={(e) => setTranscript(e.target.value)}
-          placeholder="Your spoken application description will appear here..."
+          placeholder="Your spoken application description will appear here after transcription..."
           className="min-h-[140px] w-full resize-y rounded-xl border border-border bg-black/30 p-4 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-electric focus:outline-none"
         />
       </div>

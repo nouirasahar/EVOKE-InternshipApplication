@@ -1,10 +1,10 @@
 {
-  "projectName": "build-a-clinic-management-platform-with-",
-  "originalPrompt": "Build a clinic management platform with patients, doctors and appointments",
+  "projectName": "cat-application",
+  "originalPrompt": "CAT APPLICATION",
   "app": {
-    "name": "build-a-clinic-management-platform-with-",
+    "name": "cat-application",
     "type": "full-stack-web-application",
-    "description": "Build a clinic management platform with patients, doctors and appointments"
+    "description": "CAT APPLICATION"
   },
   "pages": [
     {

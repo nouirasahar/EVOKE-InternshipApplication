@@ -1,0 +1,45 @@
+{
+  "projectName": "i-want-a-platform-that-creates-users-ins",
+  "originalPrompt": " I want a platform that creates users inside the platform in a way that the database is well connected to the DB.",
+  "app": {
+    "name": "i-want-a-platform-that-creates-users-ins",
+    "type": "full-stack-web-application",
+    "description": " I want a platform that creates users inside the platform in a way that the database is well connected to the DB."
+  },
+  "pages": [
+    {
+      "name": "Dashboard",
+      "route": "/",
+      "components": [
+        "Header",
+        "StatsCards",
+        "DataTable"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "name": "Item",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "features": [
+    "create",
+    "read",
+    "update",
+    "delete"
+  ]
+}

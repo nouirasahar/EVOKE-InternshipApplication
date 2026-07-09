@@ -1,0 +1,9 @@
+{
+  "name": "build-an-rh-plateform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "build an RH-plateform",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

@@ -1,5 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import { Mic, Send, Type, Play, Square, CheckCircle2, Loader2 } from "lucide-react";
+import {
+  Mic,
+  Send,
+  Type,
+  Play,
+  Square,
+  CheckCircle2,
+  Loader2,
+  Layers3,
+  Database,
+  Server,
+  MonitorSmartphone,
+  Sparkles,
+  FolderCode,
+  ArrowRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { pipelineStages } from "@/data/workflow";
@@ -11,23 +26,39 @@ type Mode = "voice" | "text";
 export function VoiceStudio() {
   const [mode, setMode] = useState<Mode>("voice");
   const [prompt, setPrompt] = useState("");
+  const [projectName, setProjectName] = useState("");
+  const [frontend, setFrontend] = useState("react-vite");
+  const [backend, setBackend] = useState("express");
+  const [database, setDatabase] = useState("mongodb");
   const [speechLanguage, setSpeechLanguage] = useState("en");
   const [stage, setStage] = useState(-1);
+  const [generatedProjectId, setGeneratedProjectId] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   async function runPipeline() {
     if (!prompt.trim()) return;
 
     try {
+      setIsGenerating(true);
+      setGeneratedProjectId(null);
       setStage(0);
 
       const data = await generateApplication({
+        projectName,
         prompt,
         transcript: mode === "voice" ? prompt : undefined,
         source: mode,
         language: speechLanguage,
+        frontend,
+        backend,
+        database,
       });
 
       console.log("Generated application:", data);
+
+      if (data?.project?._id) {
+        setGeneratedProjectId(data.project._id);
+      }
 
       pipelineStages.forEach((_, i) => {
         setTimeout(() => setStage(i + 1), (i + 1) * 550);
@@ -36,22 +67,99 @@ export function VoiceStudio() {
       console.error("Generation failed:", error);
       alert(error instanceof Error ? error.message : "Generation failed.");
       setStage(-1);
+    } finally {
+      setIsGenerating(false);
     }
   }
 
   return (
     <section id="studio" className="relative py-24">
-      <div className="mx-auto max-w-5xl px-4">
+      <div className="mx-auto max-w-6xl px-4">
         <SectionTitle
-          eyebrow="VOICE STUDIO"
-          title="Speak your next product into existence"
-          subtitle="Describe your application by voice or text. EVOKE will transform it into a full-stack product."
+          eyebrow="EVOKE STUDIO"
+          title="Configure, describe, and generate your full-stack application"
+          subtitle="Choose your stack, describe your product by voice or text, then let EVOKE generate your project workspace."
         />
 
-        <div className="glass rounded-3xl p-6 sm:p-10 shadow-brand">
+        <div className="glass rounded-3xl p-6 shadow-brand sm:p-10">
+          <div className="mb-8 grid gap-4 lg:grid-cols-[1.1fr_1fr]">
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <div className="mb-4 flex items-center gap-2">
+                <FolderCode className="h-5 w-5 text-cyan-400" />
+                <h3 className="font-semibold">Project identity</h3>
+              </div>
+
+              <label className="mb-2 block font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                Project name
+              </label>
+
+              <input
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                placeholder="Example: e-commerce-platform"
+                className="w-full rounded-xl border border-border bg-black/30 p-3 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-electric focus:outline-none"
+              />
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <div className="mb-4 flex items-center gap-2">
+                <Layers3 className="h-5 w-5 text-violet-400" />
+                <h3 className="font-semibold">Technology stack</h3>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <StackSelect
+                  icon={<MonitorSmartphone className="h-4 w-4" />}
+                  label="Frontend"
+                  value={frontend}
+                  onChange={setFrontend}
+                  options={[
+                    { value: "react-vite", label: "React + Vite" },
+                    { value: "nextjs", label: "Next.js" },
+                    { value: "angular", label: "Angular" },
+                  ]}
+                />
+
+                <StackSelect
+                  icon={<Server className="h-4 w-4" />}
+                  label="Backend"
+                  value={backend}
+                  onChange={setBackend}
+                  options={[
+                    { value: "express", label: "Express" },
+                    { value: "nestjs", label: "NestJS" },
+                    { value: "spring-boot", label: "Spring Boot" },
+                  ]}
+                />
+
+                <StackSelect
+                  icon={<Database className="h-4 w-4" />}
+                  label="Database"
+                  value={database}
+                  onChange={setDatabase}
+                  options={[
+                    { value: "mongodb", label: "MongoDB" },
+                    { value: "postgresql", label: "PostgreSQL" },
+                    { value: "mysql", label: "MySQL" },
+                  ]}
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="mx-auto mb-8 inline-flex rounded-xl border border-border bg-black/30 p-1">
-            <ModeTab active={mode === "voice"} onClick={() => setMode("voice")} icon={<Mic className="h-4 w-4" />} label="Voice" />
-            <ModeTab active={mode === "text"} onClick={() => setMode("text")} icon={<Type className="h-4 w-4" />} label="Text" />
+            <ModeTab
+              active={mode === "voice"}
+              onClick={() => setMode("voice")}
+              icon={<Mic className="h-4 w-4" />}
+              label="Voice"
+            />
+            <ModeTab
+              active={mode === "text"}
+              onClick={() => setMode("text")}
+              icon={<Type className="h-4 w-4" />}
+              label="Text"
+            />
           </div>
 
           {mode === "voice" ? (
@@ -65,10 +173,30 @@ export function VoiceStudio() {
             <TextPanel prompt={prompt} setPrompt={setPrompt} />
           )}
 
-          <div className="mt-8 flex justify-end">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            {generatedProjectId && (
+              <a
+                href={`/projects/${generatedProjectId}`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/20"
+              >
+                View generated project
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            )}
+
             <Button onClick={runPipeline}>
-              Generate Application
-              <Send className="h-4 w-4" />
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Generate Application
+                  <Send className="h-4 w-4" />
+                </>
+              )}
             </Button>
           </div>
 
@@ -76,6 +204,41 @@ export function VoiceStudio() {
         </div>
       </div>
     </section>
+  );
+}
+
+function StackSelect({
+  icon,
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div>
+      <label className="mb-2 flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+        {icon}
+        {label}
+      </label>
+
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-xl border border-border bg-black/30 p-3 font-mono text-sm text-foreground focus:border-electric focus:outline-none"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
 
@@ -168,14 +331,12 @@ function VoicePanel({
           });
 
           const data = await transcribeAudio(audioBlob);
-
           setTranscript(data.text || "");
         } catch (err) {
           console.error("Transcription failed:", err);
           setError(err instanceof Error ? err.message : "Transcription failed.");
         } finally {
           setIsTranscribing(false);
-
           streamRef.current?.getTracks().forEach((track) => track.stop());
           streamRef.current = null;
         }
@@ -227,7 +388,6 @@ function VoicePanel({
         >
           <option value="en">English</option>
           <option value="fr">French</option>
-    
         </select>
       </div>
 
@@ -244,7 +404,11 @@ function VoicePanel({
           }`}
           aria-label="Activate voice"
         >
-          {isTranscribing ? <Loader2 className="h-12 w-12 animate-spin" /> : <Mic className="h-12 w-12" />}
+          {isTranscribing ? (
+            <Loader2 className="h-12 w-12 animate-spin" />
+          ) : (
+            <Mic className="h-12 w-12" />
+          )}
         </button>
       </div>
 
@@ -327,7 +491,7 @@ function TextPanel({
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         placeholder="Describe the application you want EVOKE to generate..."
-        className="min-h-[160px] w-full resize-y rounded-xl border border-border bg-black/30 p-4 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-electric focus:outline-none"
+        className="min-h-[180px] w-full resize-y rounded-xl border border-border bg-black/30 p-4 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-electric focus:outline-none"
       />
     </div>
   );

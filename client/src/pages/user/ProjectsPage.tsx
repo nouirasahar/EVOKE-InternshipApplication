@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { UserPageLayout } from "@/components/user/UserPageLayout";
-import { FolderKanban, Plus, ExternalLink } from "lucide-react";
+import { FolderKanban, Plus, ExternalLink, Code2 } from "lucide-react";
 import { getMyProjects } from "@/services/project.service";
 
 type Project = {
@@ -101,6 +102,16 @@ export default function ProjectsPage() {
                   {project.generatedPath}
                 </div>
               )}
+
+              <div className="mt-5 flex justify-end">
+                <Link
+                  to={`/projects/${project._id}`}
+                  className="inline-flex items-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/20"
+                >
+                  <Code2 className="h-4 w-4" />
+                  Open Workspace
+                </Link>
+              </div>
             </div>
           ))}
         </div>

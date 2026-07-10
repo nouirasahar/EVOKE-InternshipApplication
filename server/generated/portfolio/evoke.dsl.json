@@ -1,0 +1,120 @@
+{
+  "projectName": "portfolio",
+  "description": "A professional portfolio for an AI engineer",
+  "frontend": "react-vite",
+  "backend": "express",
+  "database": "mongodb",
+  "authentication": true,
+  "pages": [
+    {
+      "name": "Home",
+      "route": "/",
+      "purpose": "Introduction to the engineer's portfolio"
+    },
+    {
+      "name": "About",
+      "route": "/about",
+      "purpose": "Detailed information about the engineer"
+    },
+    {
+      "name": "Projects",
+      "route": "/projects",
+      "purpose": "Showcase of the engineer's projects"
+    },
+    {
+      "name": "Experience",
+      "route": "/experience",
+      "purpose": "Overview of the engineer's work experience"
+    },
+    {
+      "name": "Contact",
+      "route": "/contact",
+      "purpose": "Contact information for the engineer"
+    }
+  ],
+  "entities": [
+    {
+      "name": "Project",
+      "fields": [
+        {
+          "name": "title",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "technologies",
+          "type": "array",
+          "required": true
+        },
+        {
+          "name": "imageUrl",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "Experience",
+      "fields": [
+        {
+          "name": "company",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "position",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "api": [
+    {
+      "method": "GET",
+      "path": "/api/projects",
+      "purpose": "Retrieve a list of projects"
+    },
+    {
+      "method": "GET",
+      "path": "/api/experiences",
+      "purpose": "Retrieve a list of experiences"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects",
+      "purpose": "Create a new project"
+    },
+    {
+      "method": "POST",
+      "path": "/api/experiences",
+      "purpose": "Create a new experience"
+    }
+  ],
+  "features": [
+    "responsive design",
+    "dark mode",
+    "project filtering",
+    "experience sorting"
+  ]
+}

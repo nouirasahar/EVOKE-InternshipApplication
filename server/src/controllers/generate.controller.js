@@ -1,9 +1,10 @@
 import Project from "../models/Project.js";
-import { createDslFromPrompt } from "../services/dsl.service.js";
+import { generateDsl } from "../ai/agents/dsl.agent.js";
 import { generateProject } from "../services/generator.service.js";
 
-const buildProjectTitle = (dsl, prompt) => {
+const buildProjectTitle = (projectName, dsl, prompt) => {
   return (
+    projectName?.trim() ||
     dsl?.app?.name ||
     dsl?.projectName ||
     prompt.slice(0, 50) ||
@@ -13,7 +14,16 @@ const buildProjectTitle = (dsl, prompt) => {
 
 export const generateApplication = async (req, res) => {
   try {
-    const { prompt, transcript, source, language } = req.body;
+    const {
+      projectName,
+      prompt,
+      transcript,
+      source,
+      language,
+      frontend,
+      backend,
+      database,
+    } = req.body;
 
     const finalPrompt = prompt || transcript;
 
@@ -24,30 +34,31 @@ export const generateApplication = async (req, res) => {
       });
     }
 
-    const dsl = createDslFromPrompt(finalPrompt);
+  const dsl = await generateDsl({
+    prompt: finalPrompt,
+    projectName,
+    frontend: frontend || "react-vite",
+    backend: backend || "express",
+    database: database || "mongodb",
+    });
 
     const generatedProject = await generateProject(dsl);
 
     const project = await Project.create({
       owner: req.user.id,
-      title: buildProjectTitle(dsl, finalPrompt),
+      title: buildProjectTitle(projectName, dsl, finalPrompt),
       prompt: finalPrompt,
       transcript: transcript || null,
       source: source || "text",
       language: language || null,
       dsl,
-      framework: dsl?.frontend || "react-vite",
-      backend: dsl?.backend || "express",
-      database: dsl?.database || "mongodb",
+      framework: dsl.frontend,
+      backend: dsl.backend,
+      database: dsl.database,
       status: "generated",
       pipelineStatus: "completed",
       generatedPath: generatedProject.projectPath,
-      files: generatedProject.files.map((filePath) => ({
-        path: filePath,
-        type: "file",
-        language: null,
-        content: "",
-      })),
+      files: generatedProject.files,
       agents: [
         {
           name: "DSL Agent",
@@ -61,7 +72,11 @@ export const generateApplication = async (req, res) => {
           status: "completed",
           progress: 100,
           logs: ["Project scaffold generated successfully."],
-          output: generatedProject,
+          output: {
+            projectName: generatedProject.projectName,
+            projectPath: generatedProject.projectPath,
+            filesCount: generatedProject.files.length,
+          },
         },
       ],
     });
@@ -69,15 +84,7 @@ export const generateApplication = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Application generated and saved successfully.",
-      project: {
-        _id: project._id,
-       title: project.title,
-       prompt: project.prompt,
-       status: project.status,
-       framework: project.framework,
-       generatedPath: project.generatedPath,
-       createdAt: project.createdAt,
-      },
+      project,
     });
   } catch (error) {
     return res.status(500).json({

@@ -7,6 +7,7 @@ import generateRoutes from "./routes/generate.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import transcriptionRoutes from "./routes/transcription.routes.js";
+import aiTestRoutes from "./routes/ai-test.routes.js";
 dotenv.config();
 
 connectDB();
@@ -29,6 +30,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/generate", generateRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/ai-test", aiTestRoutes);
 
 app.use("/api/transcription", transcriptionRoutes);
 

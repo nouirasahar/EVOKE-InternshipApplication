@@ -1,32 +1,19 @@
 import mongoose from "mongoose";
 
-const agentLogSchema = new mongoose.Schema(
+const fileSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    status: {
+    path: {
       type: String,
-      enum: ["pending", "running", "completed", "failed"],
-      default: "pending",
+      required: true,
     },
-    progress: { type: Number, default: 0 },
-    logs: [{ type: String }],
-    executionTimeMs: { type: Number, default: 0 },
-    output: { type: Object, default: {} },
-    error: { type: String, default: null },
-  },
-  { _id: false }
-);
-
-const generatedFileSchema = new mongoose.Schema(
-  {
-    path: { type: String, required: true },
-    type: {
+    content: {
       type: String,
-      enum: ["file", "directory"],
-      default: "file",
+      default: "",
     },
-    language: { type: String, default: null },
-    content: { type: String, default: "" },
+    language: {
+      type: String,
+      default: "text",
+    },
   },
   { _id: false }
 );
@@ -37,7 +24,6 @@ const projectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
 
     title: {
@@ -51,22 +37,6 @@ const projectSchema = new mongoose.Schema(
       required: true,
     },
 
-    transcript: {
-      type: String,
-      default: null,
-    },
-
-    source: {
-      type: String,
-      enum: ["voice", "text"],
-      default: "text",
-    },
-
-    language: {
-      type: String,
-      default: null,
-    },
-
     dsl: {
       type: Object,
       default: {},
@@ -77,35 +47,19 @@ const projectSchema = new mongoose.Schema(
       default: "react-vite",
     },
 
-    backend: {
-      type: String,
-      default: "express",
-    },
-
-    database: {
-      type: String,
-      default: "mongodb",
-    },
-
     status: {
       type: String,
-      enum: ["draft", "generating", "generated", "failed"],
+      enum: [
+        "draft",
+        "generating",
+        "generated",
+        "failed"
+      ],
       default: "draft",
     },
 
-    pipelineStatus: {
-      type: String,
-      enum: ["pending", "running", "completed", "failed"],
-      default: "pending",
-    },
-
-    agents: {
-      type: [agentLogSchema],
-      default: [],
-    },
-
     files: {
-      type: [generatedFileSchema],
+      type: [fileSchema],
       default: [],
     },
 
@@ -113,18 +67,10 @@ const projectSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-
-    previewUrl: {
-      type: String,
-      default: null,
-    },
-
-    error: {
-      type: String,
-      default: null,
-    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 export default mongoose.model("Project", projectSchema);

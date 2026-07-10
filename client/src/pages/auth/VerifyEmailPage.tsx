@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Mail } from "lucide-react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthCard } from "@/components/auth/AuthCard";
-import { AuthButton } from "@/components/auth/AuthButton";
 import { AuthMessage } from "@/components/auth/AuthMessage";
 import { verifyEmail } from "@/services/auth.service";
 

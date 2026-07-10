@@ -1,0 +1,109 @@
+{
+  "projectName": "stickers-plateform",
+  "description": "A professional web platform for selling stickers",
+  "frontend": "react-vite",
+  "backend": "express",
+  "database": "mongodb",
+  "authentication": true,
+  "pages": [
+    {
+      "name": "Home",
+      "route": "/",
+      "purpose": "Display all available stickers"
+    },
+    {
+      "name": "Sticker Details",
+      "route": "/sticker/:id",
+      "purpose": "Display details of a specific sticker"
+    },
+    {
+      "name": "Cart",
+      "route": "/cart",
+      "purpose": "Display user's cart"
+    }
+  ],
+  "entities": [
+    {
+      "name": "Sticker",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "price",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "image",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "api": [
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "purpose": "Retrieve all available stickers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sticker/:id",
+      "purpose": "Retrieve a specific sticker by id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sticker",
+      "purpose": "Create a new sticker"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/sticker/:id",
+      "purpose": "Update a sticker"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/sticker/:id",
+      "purpose": "Delete a sticker"
+    }
+  ],
+  "features": [
+    "user authentication",
+    "sticker catalog",
+    "shopping cart"
+  ]
+}

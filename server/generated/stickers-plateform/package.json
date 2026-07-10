@@ -1,0 +1,9 @@
+{
+  "name": "stickers-plateform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A professional web platform for selling stickers",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

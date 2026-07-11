@@ -1,6 +1,12 @@
 import Project from "../models/Project.js";
 import { generateDsl } from "../ai/agents/dsl.agent.js";
 import { generateFrontendFiles } from "../ai/agents/frontend.agent.js";
+import { generateBackendFiles } from "../ai/agents/backend.agent.js";
+import { generateDatabaseFiles } from "../ai/agents/database.agent.js";
+import {
+  validateGeneratedProject,
+  applyValidationFixes,
+} from "../ai/agents/validation.agent.js";
 import { generateProject } from "../services/generator.service.js";
 
 const buildProjectTitle = (projectName, dsl, prompt) => {
@@ -14,16 +20,27 @@ const buildProjectTitle = (projectName, dsl, prompt) => {
 };
 
 const mergeFiles = (scaffoldFiles, generatedFiles) => {
-  const generatedPaths = new Set(
-    generatedFiles.map((file) => file.path)
+  const generatedFilesByPath = new Map(
+    generatedFiles.map((file) => [file.path, file])
   );
 
-  return [
-    ...scaffoldFiles.filter(
-      (file) => !generatedPaths.has(file.path)
-    ),
-    ...generatedFiles,
-  ];
+  const mergedFiles = scaffoldFiles.map((file) => {
+    return generatedFilesByPath.get(file.path) || file;
+  });
+
+  const scaffoldPaths = new Set(
+    scaffoldFiles.map((file) => file.path)
+  );
+
+  for (const file of generatedFiles) {
+    if (!scaffoldPaths.has(file.path)) {
+      mergedFiles.push(file);
+    }
+  }
+
+  return mergedFiles.sort((firstFile, secondFile) =>
+    firstFile.path.localeCompare(secondFile.path)
+  );
 };
 
 export const generateApplication = async (req, res) => {
@@ -65,11 +82,36 @@ export const generateApplication = async (req, res) => {
       dsl,
     });
 
+    const backendFiles = await generateBackendFiles({
+      dsl,
+    });
+
+    const databaseFiles = await generateDatabaseFiles({
+      dsl,
+    });
+
     const generatedProject = await generateProject(dsl);
+
+    const aiGeneratedFiles = [
+      ...frontendFiles,
+      ...backendFiles,
+      ...databaseFiles,
+    ];
 
     const mergedFiles = mergeFiles(
       generatedProject.files,
-      frontendFiles
+      aiGeneratedFiles
+    );
+
+    const validationResult =
+      await validateGeneratedProject({
+        dsl,
+        files: mergedFiles,
+      });
+
+    const finalFiles = applyValidationFixes(
+      mergedFiles,
+      validationResult.fixedFiles
     );
 
     const project = await Project.create({
@@ -84,13 +126,20 @@ export const generateApplication = async (req, res) => {
       source: source || "text",
       language: language || null,
       dsl,
-      framework: dsl.frontend || selectedFrontend,
-      backend: dsl.backend || selectedBackend,
-      database: dsl.database || selectedDatabase,
+      framework:
+        dsl.frontend || selectedFrontend,
+      backend:
+        dsl.backend || selectedBackend,
+      database:
+        dsl.database || selectedDatabase,
       status: "generated",
-      pipelineStatus: "completed",
-      generatedPath: generatedProject.projectPath,
-      files: mergedFiles,
+      pipelineStatus:
+        validationResult.valid
+          ? "completed"
+          : "completed_with_warnings",
+      generatedPath:
+        generatedProject.projectPath,
+      files: finalFiles,
       agents: [
         {
           name: "DSL Agent",
@@ -118,12 +167,67 @@ export const generateApplication = async (req, res) => {
           },
         },
         {
+          name: "Backend Agent",
+          status: "completed",
+          progress: 100,
+          logs: [
+            `Generated ${backendFiles.length} backend files using ${
+              dsl.backend || selectedBackend
+            }.`,
+          ],
+          output: {
+            filesCount: backendFiles.length,
+            files: backendFiles.map(
+              (file) => file.path
+            ),
+          },
+        },
+        {
+          name: "Database Agent",
+          status: "completed",
+          progress: 100,
+          logs: [
+            `Generated ${databaseFiles.length} database files using ${
+              dsl.database || selectedDatabase
+            }.`,
+          ],
+          output: {
+            filesCount: databaseFiles.length,
+            files: databaseFiles.map(
+              (file) => file.path
+            ),
+          },
+        },
+        {
+          name: "Validation Agent",
+          status: validationResult.valid
+            ? "completed"
+            : "warning",
+          progress: 100,
+          logs: [
+            validationResult.summary,
+            `Validation score: ${validationResult.score}/100`,
+            `Issues detected: ${validationResult.issues.length}`,
+            `Files corrected: ${validationResult.fixedFiles.length}`,
+          ],
+          output: {
+            score: validationResult.score,
+            valid: validationResult.valid,
+            issues: validationResult.issues,
+            correctedFiles:
+              validationResult.fixedFiles.map(
+                (file) => file.path
+              ),
+          },
+        },
+        {
           name: "Generator Agent",
           status: "completed",
           progress: 100,
           logs: [
             "Base project scaffold generated successfully.",
-            "Frontend agent files merged with scaffold files.",
+            "Frontend, backend, and database files merged with the scaffold.",
+            "Validation corrections applied before persistence.",
           ],
           output: {
             projectName:
@@ -132,7 +236,18 @@ export const generateApplication = async (req, res) => {
               generatedProject.projectPath,
             scaffoldFilesCount:
               generatedProject.files.length,
-            finalFilesCount: mergedFiles.length,
+            frontendFilesCount:
+              frontendFiles.length,
+            backendFilesCount:
+              backendFiles.length,
+            databaseFilesCount:
+              databaseFiles.length,
+            correctedFilesCount:
+              validationResult.fixedFiles.length,
+            validationScore:
+              validationResult.score,
+            finalFilesCount:
+              finalFiles.length,
           },
         },
       ],
@@ -141,7 +256,7 @@ export const generateApplication = async (req, res) => {
     return res.status(201).json({
       success: true,
       message:
-        "Application generated and saved successfully.",
+        "Application generated, validated, and saved successfully.",
       project,
     });
   } catch (error) {

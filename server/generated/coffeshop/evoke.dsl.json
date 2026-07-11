@@ -1,0 +1,64 @@
+{
+  "projectName": "coffeShop",
+  "description": "A website for the Weird coffee shop",
+  "frontend": "angular",
+  "backend": "express",
+  "database": "mongodb",
+  "authentication": false,
+  "pages": [
+    {
+      "name": "Home",
+      "route": "/",
+      "purpose": "Display menu and pictures of dishes and drinks"
+    },
+    {
+      "name": "About",
+      "route": "/about",
+      "purpose": "Provide information about the Weird coffee shop"
+    },
+    {
+      "name": "Menu",
+      "route": "/menu",
+      "purpose": "Display menu items with pictures"
+    }
+  ],
+  "entities": [
+    {
+      "name": "MenuItem",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "price",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "image",
+          "type": "string",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "api": [
+    {
+      "method": "GET",
+      "path": "/api/menu",
+      "purpose": "Retrieve menu items"
+    }
+  ],
+  "features": [
+    "menu display",
+    "about page",
+    "image gallery"
+  ]
+}

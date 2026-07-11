@@ -1,0 +1,150 @@
+{
+  "projectName": "BookStore",
+  "description": "A professional and beautiful full-stack book store website",
+  "frontend": "react-vite",
+  "backend": "express",
+  "database": "mongodb",
+  "authentication": true,
+  "pages": [
+    {
+      "name": "Home",
+      "route": "/",
+      "purpose": "Display featured books and navigation"
+    },
+    {
+      "name": "Book List",
+      "route": "/books",
+      "purpose": "Display list of all books"
+    },
+    {
+      "name": "Book Details",
+      "route": "/books/:id",
+      "purpose": "Display details of a single book"
+    },
+    {
+      "name": "Cart",
+      "route": "/cart",
+      "purpose": "Display user's shopping cart"
+    },
+    {
+      "name": "Login",
+      "route": "/login",
+      "purpose": "User login page"
+    },
+    {
+      "name": "Register",
+      "route": "/register",
+      "purpose": "User registration page"
+    }
+  ],
+  "entities": [
+    {
+      "name": "Book",
+      "fields": [
+        {
+          "name": "title",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "author",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "price",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "fields": [
+        {
+          "name": "username",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "fields": [
+        {
+          "name": "userId",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "bookId",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "number",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "api": [
+    {
+      "method": "GET",
+      "path": "/api/books",
+      "purpose": "Get all books"
+    },
+    {
+      "method": "GET",
+      "path": "/api/books/:id",
+      "purpose": "Get a single book by id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/books",
+      "purpose": "Create a new book"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/books/:id",
+      "purpose": "Update a book"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/books/:id",
+      "purpose": "Delete a book"
+    },
+    {
+      "method": "POST",
+      "path": "/api/orders",
+      "purpose": "Create a new order"
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "purpose": "Get all orders for a user"
+    }
+  ],
+  "features": [
+    "User authentication",
+    "Book listing and details",
+    "Shopping cart",
+    "Order management"
+  ]
+}

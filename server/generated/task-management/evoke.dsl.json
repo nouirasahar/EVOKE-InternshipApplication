@@ -1,0 +1,140 @@
+{
+  "projectName": "Task Management",
+  "description": "A task management application with authentication and project management features",
+  "frontend": "react-vite",
+  "backend": "express",
+  "database": "mongodb",
+  "authentication": true,
+  "pages": [
+    {
+      "name": "Dashboard",
+      "route": "/dashboard",
+      "purpose": "Display user tasks and projects"
+    },
+    {
+      "name": "Project List",
+      "route": "/projects",
+      "purpose": "Display all user projects"
+    },
+    {
+      "name": "Task List",
+      "route": "/tasks",
+      "purpose": "Display all user tasks"
+    },
+    {
+      "name": "Login",
+      "route": "/login",
+      "purpose": "User login"
+    },
+    {
+      "name": "Register",
+      "route": "/register",
+      "purpose": "User registration"
+    }
+  ],
+  "entities": [
+    {
+      "name": "Project",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "deadline",
+          "type": "date",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "Task",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "deadline",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "projectId",
+          "type": "objectId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "fields": [
+        {
+          "name": "username",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "api": [
+    {
+      "method": "GET",
+      "path": "/api/projects",
+      "purpose": "Get all user projects"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects",
+      "purpose": "Create a new project"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks",
+      "purpose": "Get all user tasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks",
+      "purpose": "Create a new task"
+    },
+    {
+      "method": "GET",
+      "path": "/api/users",
+      "purpose": "Get all users"
+    }
+  ],
+  "features": [
+    "Authentication",
+    "Project Management",
+    "Task Management",
+    "User Roles"
+  ]
+}

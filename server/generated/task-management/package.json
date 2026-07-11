@@ -1,0 +1,9 @@
+{
+  "name": "task-management",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A task management application with authentication and project management features",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

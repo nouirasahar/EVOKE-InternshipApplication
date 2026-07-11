@@ -1,0 +1,9 @@
+{
+  "name": "clothes-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An e-commerce platform for selling clothes in various sizes with high-quality images",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

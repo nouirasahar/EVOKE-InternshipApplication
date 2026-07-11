@@ -1,0 +1,9 @@
+{
+  "name": "bookstore",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A professional and beautiful full-stack book store website",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

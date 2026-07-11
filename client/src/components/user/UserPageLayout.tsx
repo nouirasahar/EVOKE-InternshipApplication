@@ -14,7 +14,7 @@ export function UserPageLayout({ title, subtitle, children }: Props) {
       <Navbar />
 
       <section className="px-6 pt-32 pb-16">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto w-full max-w-[1650px] px-4">
           <Link
             to="/"
             className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"

@@ -1,0 +1,9 @@
+{
+  "name": "coffeshop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A website for the Weird coffee shop",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

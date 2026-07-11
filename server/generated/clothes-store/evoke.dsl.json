@@ -1,0 +1,155 @@
+{
+  "projectName": "clothes Store",
+  "description": "An e-commerce platform for selling clothes in various sizes with high-quality images",
+  "frontend": "react-vite",
+  "backend": "express",
+  "database": "mongodb",
+  "authentication": true,
+  "pages": [
+    {
+      "name": "Home",
+      "route": "/",
+      "purpose": "Display featured products and navigation"
+    },
+    {
+      "name": "Product List",
+      "route": "/products",
+      "purpose": "Display list of products with filtering and sorting options"
+    },
+    {
+      "name": "Product Details",
+      "route": "/products/:id",
+      "purpose": "Display detailed product information with images"
+    },
+    {
+      "name": "Cart",
+      "route": "/cart",
+      "purpose": "Display items in cart and allow checkout"
+    },
+    {
+      "name": "Login",
+      "route": "/login",
+      "purpose": "Allow users to log in to their accounts"
+    },
+    {
+      "name": "Register",
+      "route": "/register",
+      "purpose": "Allow new users to create an account"
+    }
+  ],
+  "entities": [
+    {
+      "name": "Product",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "price",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sizes",
+          "type": "array",
+          "required": true
+        },
+        {
+          "name": "images",
+          "type": "array",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "products",
+          "type": "array",
+          "required": true
+        },
+        {
+          "name": "total",
+          "type": "number",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "api": [
+    {
+      "method": "GET",
+      "path": "/api/products",
+      "purpose": "Retrieve list of products"
+    },
+    {
+      "method": "GET",
+      "path": "/api/products/:id",
+      "purpose": "Retrieve product details"
+    },
+    {
+      "method": "POST",
+      "path": "/api/orders",
+      "purpose": "Create new order"
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "purpose": "Retrieve list of orders for user"
+    }
+  ],
+  "features": [
+    "User authentication",
+    "Product filtering and sorting",
+    "Shopping cart",
+    "Order management"
+  ]
+}

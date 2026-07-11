@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { UserPageLayout } from "@/components/user/UserPageLayout";
 import { FileExplorer } from "@/components/workspace/FileExplorer";
 import { EditorTabs } from "@/components/workspace/EditorTabs";
 import { MonacoEditor } from "@/components/workspace/MonacoEditor";
+import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 
 import { useEditor } from "@/hooks/useEditor";
 import { getProjectById } from "@/services/project.service";
@@ -100,6 +101,15 @@ export default function ProjectWorkspacePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [isPreviewOpen, setIsPreviewOpen] = useState(true);
+  const [isPreviewStarting, setIsPreviewStarting] =
+    useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    null
+  );
+  const [previewError, setPreviewError] = useState("");
+  const [previewKey, setPreviewKey] = useState(0);
+
   const {
     openTabs,
     activeTab,
@@ -178,10 +188,29 @@ export default function ProjectWorkspacePage() {
     });
   }
 
+  function runPreview() {
+    setIsPreviewStarting(true);
+    setPreviewError("");
+
+    setTimeout(() => {
+      setIsPreviewStarting(false);
+
+      setPreviewError(
+        "The Preview interface is ready, but the backend preview runner is not implemented yet."
+      );
+    }, 1200);
+  }
+
+  function refreshPreview() {
+    if (!previewUrl) return;
+
+    setPreviewKey((currentKey) => currentKey + 1);
+  }
+
   return (
     <UserPageLayout
       title={project?.title || "EVOKE Workspace"}
-      subtitle="Review and edit the generated application."
+      subtitle="Review, edit, and preview the generated application."
     >
       {loading && (
         <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 p-6 text-muted-foreground">
@@ -204,6 +233,7 @@ export default function ProjectWorkspacePage() {
                 <p className="text-sm font-semibold text-white">
                   {project.title}
                 </p>
+
                 <p className="text-[11px] text-muted-foreground">
                   EVOKE IDE
                 </p>
@@ -214,16 +244,46 @@ export default function ProjectWorkspacePage() {
               </span>
             </div>
 
-            <div className="hidden items-center gap-2 text-xs text-muted-foreground md:flex">
-              <span>{project.framework}</span>
-              <span>•</span>
-              <span>{project.backend}</span>
-              <span>•</span>
-              <span>{project.database}</span>
+            <div className="flex items-center gap-3">
+              <div className="hidden items-center gap-2 text-xs text-muted-foreground md:flex">
+                <span>{project.framework}</span>
+                <span>•</span>
+                <span>{project.backend}</span>
+                <span>•</span>
+                <span>{project.database}</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setIsPreviewOpen(
+                    (currentValue) => !currentValue
+                  )
+                }
+                className="inline-flex h-8 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 text-xs font-medium text-slate-300 transition hover:bg-white/10 hover:text-white"
+              >
+                {isPreviewOpen ? (
+                  <>
+                    <EyeOff className="h-3.5 w-3.5" />
+                    Hide Preview
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-3.5 w-3.5" />
+                    Show Preview
+                  </>
+                )}
+              </button>
             </div>
           </div>
 
-          <div className="grid h-[720px] grid-cols-[280px_minmax(0,1fr)]">
+          <div
+            className={`grid h-[calc(100vh-180px)] min-h-[760px] ${
+              isPreviewOpen
+                ? "grid-cols-[250px_minmax(420px,1fr)_minmax(360px,0.8fr)]"
+                : "grid-cols-[280px_minmax(0,1fr)]"
+            }`}
+          >
             <FileExplorer
               tree={fileTree}
               selectedPath={activeTabPath}
@@ -267,6 +327,21 @@ export default function ProjectWorkspacePage() {
                 </div>
               </div>
             </main>
+
+            {isPreviewOpen && (
+              <div
+                key={previewKey}
+                className="min-w-0"
+              >
+                <PreviewPanel
+                  previewUrl={previewUrl}
+                  isStarting={isPreviewStarting}
+                  error={previewError}
+                  onRun={runPreview}
+                  onRefresh={refreshPreview}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}

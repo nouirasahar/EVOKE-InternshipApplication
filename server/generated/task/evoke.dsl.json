@@ -1,6 +1,6 @@
 {
-  "projectName": "bookstore",
-  "description": "A professional and beautiful full-stack book store website",
+  "projectName": "task",
+  "description": "A task management platform with authentication, projects, tasks, deadlines and a dashboard",
   "frontend": "react-vite",
   "backend": "express",
   "database": "mongodb",
@@ -30,20 +30,42 @@
       "name": "Page 5",
       "route": "/",
       "purpose": ""
+    },
+    {
+      "name": "Page 6",
+      "route": "/",
+      "purpose": ""
     }
   ],
   "entities": [
     {
-      "name": "Book",
+      "name": "User",
       "fields": [
         {
-          "name": "title",
+          "name": "username",
           "type": "string",
           "required": false,
           "unique": false
         },
         {
-          "name": "author",
+          "name": "email",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": false,
+          "unique": false
+        }
+      ]
+    },
+    {
+      "name": "Project",
+      "fields": [
+        {
+          "name": "title",
           "type": "string",
           "required": false,
           "unique": false
@@ -55,49 +77,43 @@
           "unique": false
         },
         {
-          "name": "price",
-          "type": "number",
-          "required": false,
-          "unique": false
-        },
-        {
-          "name": "publishedDate",
-          "type": "date",
-          "required": false,
-          "unique": false
-        },
-        {
-          "name": "imageUrl",
-          "type": "string",
+          "name": "owner",
+          "type": "reference",
           "required": false,
           "unique": false
         }
       ]
     },
     {
-      "name": "Order",
+      "name": "Task",
       "fields": [
         {
-          "name": "bookId",
+          "name": "title",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "deadline",
+          "type": "date",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "project",
           "type": "reference",
           "required": false,
           "unique": false
         },
         {
-          "name": "quantity",
-          "type": "number",
-          "required": false,
-          "unique": false
-        },
-        {
-          "name": "totalPrice",
-          "type": "number",
-          "required": false,
-          "unique": false
-        },
-        {
-          "name": "orderDate",
-          "type": "date",
+          "name": "assignee",
+          "type": "reference",
           "required": false,
           "unique": false
         }
@@ -106,8 +122,10 @@
   ],
   "api": [],
   "features": [
-    "Book listing",
-    "Book details",
-    "Order creation"
+    "User authentication and authorization",
+    "Project management",
+    "Task management",
+    "Deadline tracking",
+    "Dashboard overview"
   ]
 }

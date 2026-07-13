@@ -1,5 +1,5 @@
 import Groq from "groq-sdk";
-import { AIProvider } from "./ai-provider.js";
+import { AIProvider } from "../base/ai-provider.js";
 
 export class GroqProvider extends AIProvider {
   constructor() {

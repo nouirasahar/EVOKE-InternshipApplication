@@ -1,0 +1,9 @@
+{
+  "name": "task",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A task management platform with authentication, projects, tasks, deadlines and a dashboard",
+  "scripts": {
+    "dev": "echo \"Run client and server separately\""
+  }
+}

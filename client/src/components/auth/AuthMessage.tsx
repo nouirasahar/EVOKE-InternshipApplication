@@ -18,27 +18,27 @@ export function AuthMessage({
 }: Props) {
   const styles = {
     success: {
-      border: "border-emerald-400/20",
-      bg: "bg-emerald-400/5",
-      text: "text-emerald-400",
+      border: "border-[#E9DED3]",
+      bg: "bg-[#FFFBF7]",
+      text: "text-[#B97A56]",
       icon: CheckCircle,
     },
     error: {
-      border: "border-red-400/20",
-      bg: "bg-red-400/5",
-      text: "text-red-400",
+      border: "border-[#E9DED3]",
+      bg: "bg-[#FFF8F5]",
+      text: "text-[#C76B5D]",
       icon: AlertCircle,
     },
     warning: {
-      border: "border-yellow-400/20",
-      bg: "bg-yellow-400/5",
-      text: "text-yellow-400",
+      border: "border-[#E9DED3]",
+      bg: "bg-[#FFF9F3]",
+      text: "text-[#C48B5C]",
       icon: AlertTriangle,
     },
     info: {
-      border: "border-blue-400/20",
-      bg: "bg-blue-400/5",
-      text: "text-blue-400",
+      border: "border-[#E9DED3]",
+      bg: "bg-[#FFFBF7]",
+      text: "text-[#B97A56]",
       icon: Info,
     },
   };

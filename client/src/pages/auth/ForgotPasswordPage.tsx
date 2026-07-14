@@ -21,6 +21,7 @@ export default function ForgotPasswordPage() {
 
     const found = validateEmailOnly(email);
     setErrors(found);
+
     if (Object.keys(found).length) return;
 
     try {
@@ -28,11 +29,12 @@ export default function ForgotPasswordPage() {
       setServerError("");
 
       await forgotPassword(email);
-
       setSent(true);
     } catch (error) {
       setServerError(
-        error instanceof Error ? error.message : "Failed to send reset link."
+        error instanceof Error
+          ? error.message
+          : "Failed to send reset link.",
       );
     } finally {
       setLoading(false);
@@ -86,7 +88,7 @@ export default function ForgotPasswordPage() {
           Remembered it?{" "}
           <Link
             to="/login"
-            className="text-foreground underline-offset-4 hover:underline"
+            className="font-medium text-primary underline-offset-4 hover:underline"
           >
             Back to sign in
           </Link>

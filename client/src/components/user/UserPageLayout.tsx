@@ -8,26 +8,35 @@ type Props = {
   children: React.ReactNode;
 };
 
-export function UserPageLayout({ title, subtitle, children }: Props) {
+export function UserPageLayout({
+  title,
+  subtitle,
+  children,
+}: Props) {
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-white text-foreground">
       <Navbar />
 
       <section className="px-6 pt-32 pb-16">
         <div className="mx-auto w-full max-w-[1650px] px-4">
           <Link
             to="/"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-primary"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to home
           </Link>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-violet-500/10 backdrop-blur-xl">
+          <div className="rounded-3xl border border-[#E9DED3] bg-[#FFFBF7] p-8">
             <div className="mb-8">
-              <h1 className="text-3xl font-bold">{title}</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                {title}
+              </h1>
+
               {subtitle && (
-                <p className="mt-2 text-muted-foreground">{subtitle}</p>
+                <p className="mt-2 text-muted-foreground">
+                  {subtitle}
+                </p>
               )}
             </div>
 

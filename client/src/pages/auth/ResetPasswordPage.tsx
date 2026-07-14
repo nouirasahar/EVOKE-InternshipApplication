@@ -18,12 +18,12 @@ export default function ResetPasswordPage() {
   const [done, setDone] = useState(false);
 
   const onChange = (name: string, value: string) => {
-    setValues((v) => ({ ...v, [name]: value }));
+    setValues((current) => ({ ...current, [name]: value }));
     setServerError("");
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     if (!token) {
       setServerError("Reset token is missing.");
@@ -32,6 +32,7 @@ export default function ResetPasswordPage() {
 
     const found = validateReset(values);
     setErrors(found);
+
     if (Object.keys(found).length) return;
 
     try {
@@ -39,7 +40,11 @@ export default function ResetPasswordPage() {
       await resetPassword(token, values.password);
       setDone(true);
     } catch (error) {
-      setServerError(error instanceof Error ? error.message : "Password reset failed.");
+      setServerError(
+        error instanceof Error
+          ? error.message
+          : "Password reset failed.",
+      );
     } finally {
       setLoading(false);
     }
@@ -47,7 +52,10 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthLayout>
-      <AuthCard title="Set a new password" subtitle="Choose a strong password of at least 8 characters.">
+      <AuthCard
+        title="Set a new password"
+        subtitle="Choose a strong password of at least 8 characters."
+      >
         {done ? (
           <div className="space-y-6">
             <AuthMessage
@@ -55,14 +63,21 @@ export default function ResetPasswordPage() {
               title="Password updated successfully."
               description="You can now sign in with your new password."
             />
-            <Link to="/login">
-              <AuthButton type="button">Back to sign in</AuthButton>
+
+            <Link to="/login" className="block">
+              <AuthButton type="button">
+                Back to sign in
+              </AuthButton>
             </Link>
           </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4" noValidate>
             {serverError && (
-              <AuthMessage variant="error" title="Reset failed" description={serverError} />
+              <AuthMessage
+                variant="error"
+                title="Reset failed"
+                description={serverError}
+              />
             )}
 
             <AuthInput
@@ -72,7 +87,9 @@ export default function ResetPasswordPage() {
               icon={<Lock className="h-4 w-4" />}
               togglePassword
               value={values.password}
-              onChange={(e) => onChange("password", e.target.value)}
+              onChange={(event) =>
+                onChange("password", event.target.value)
+              }
               error={errors.password}
               autoComplete="new-password"
             />
@@ -84,7 +101,9 @@ export default function ResetPasswordPage() {
               icon={<Lock className="h-4 w-4" />}
               togglePassword
               value={values.confirm}
-              onChange={(e) => onChange("confirm", e.target.value)}
+              onChange={(event) =>
+                onChange("confirm", event.target.value)
+              }
               error={errors.confirm}
               autoComplete="new-password"
             />

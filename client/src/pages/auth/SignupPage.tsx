@@ -21,18 +21,20 @@ export default function SignupPage() {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
   const navigate = useNavigate();
 
   const onChange = (name: string, value: string) => {
-    setValues((v) => ({ ...v, [name]: value }));
+    setValues((current) => ({ ...current, [name]: value }));
     setServerError("");
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     const found = validateSignup(values);
     setErrors(found);
+
     if (Object.keys(found).length) return;
 
     try {
@@ -51,7 +53,7 @@ export default function SignupPage() {
       }, 1500);
     } catch (error) {
       setServerError(
-        error instanceof Error ? error.message : "Signup failed."
+        error instanceof Error ? error.message : "Signup failed.",
       );
     } finally {
       setLoading(false);
@@ -85,7 +87,7 @@ export default function SignupPage() {
               placeholder="Ada Lovelace"
               icon={<User className="h-4 w-4" />}
               value={values.name}
-              onChange={(e) => onChange("name", e.target.value)}
+              onChange={(event) => onChange("name", event.target.value)}
               error={errors.name}
               autoComplete="name"
             />
@@ -97,7 +99,7 @@ export default function SignupPage() {
               placeholder="you@example.com"
               icon={<Mail className="h-4 w-4" />}
               value={values.email}
-              onChange={(e) => onChange("email", e.target.value)}
+              onChange={(event) => onChange("email", event.target.value)}
               error={errors.email}
               autoComplete="email"
             />
@@ -109,7 +111,7 @@ export default function SignupPage() {
               icon={<Lock className="h-4 w-4" />}
               togglePassword
               value={values.password}
-              onChange={(e) => onChange("password", e.target.value)}
+              onChange={(event) => onChange("password", event.target.value)}
               error={errors.password}
               autoComplete="new-password"
             />
@@ -121,7 +123,7 @@ export default function SignupPage() {
               icon={<Lock className="h-4 w-4" />}
               togglePassword
               value={values.confirm}
-              onChange={(e) => onChange("confirm", e.target.value)}
+              onChange={(event) => onChange("confirm", event.target.value)}
               error={errors.confirm}
               autoComplete="new-password"
             />
@@ -136,7 +138,7 @@ export default function SignupPage() {
           Already have an account?{" "}
           <Link
             to="/login"
-            className="text-foreground underline-offset-4 hover:underline"
+            className="font-medium text-primary underline-offset-4 hover:underline"
           >
             Sign in
           </Link>

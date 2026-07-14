@@ -18,15 +18,16 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const onChange = (name: string, value: string) => {
-    setValues((v) => ({ ...v, [name]: value }));
+    setValues((current) => ({ ...current, [name]: value }));
     setServerError("");
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     const found = validateLogin(values);
     setErrors(found);
+
     if (Object.keys(found).length) return;
 
     try {
@@ -40,7 +41,7 @@ export default function LoginPage() {
       navigate("/");
     } catch (error) {
       setServerError(
-        error instanceof Error ? error.message : "Login failed."
+        error instanceof Error ? error.message : "Login failed.",
       );
     } finally {
       setLoading(false);
@@ -69,7 +70,7 @@ export default function LoginPage() {
             placeholder="you@example.com"
             icon={<Mail className="h-4 w-4" />}
             value={values.email}
-            onChange={(e) => onChange("email", e.target.value)}
+            onChange={(event) => onChange("email", event.target.value)}
             error={errors.email}
             autoComplete="email"
           />
@@ -81,7 +82,7 @@ export default function LoginPage() {
             icon={<Lock className="h-4 w-4" />}
             togglePassword
             value={values.password}
-            onChange={(e) => onChange("password", e.target.value)}
+            onChange={(event) => onChange("password", event.target.value)}
             error={errors.password}
             autoComplete="current-password"
           />
@@ -89,7 +90,7 @@ export default function LoginPage() {
           <div className="flex justify-end">
             <Link
               to="/forgot-password"
-              className="text-xs text-muted-foreground transition hover:text-foreground"
+              className="text-xs font-medium text-primary transition hover:text-[#C7835B]"
             >
               Forgot password?
             </Link>
@@ -104,7 +105,7 @@ export default function LoginPage() {
           New to EVOKE?{" "}
           <Link
             to="/signup"
-            className="text-foreground underline-offset-4 hover:underline"
+            className="font-medium text-primary underline-offset-4 hover:underline"
           >
             Create an account
           </Link>

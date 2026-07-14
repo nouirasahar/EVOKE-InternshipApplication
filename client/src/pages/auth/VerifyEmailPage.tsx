@@ -26,7 +26,11 @@ export default function VerifyEmailPage() {
           navigate("/login");
         }, 2000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Email verification failed.");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Email verification failed.",
+        );
       } finally {
         setLoading(false);
       }
@@ -46,8 +50,8 @@ export default function VerifyEmailPage() {
         }
       >
         <div className="flex justify-center py-8">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/5">
-            <Mail className="h-10 w-10 text-muted-foreground" />
+          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-[#E9DED3] bg-[#FFFBF7]">
+            <Mail className="h-10 w-10 text-primary" />
           </div>
         </div>
 
@@ -76,7 +80,10 @@ export default function VerifyEmailPage() {
         )}
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          <Link to="/login" className="text-foreground hover:underline">
+          <Link
+            to="/login"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
             Go to sign in
           </Link>
         </p>

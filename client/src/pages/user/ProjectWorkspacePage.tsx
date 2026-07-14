@@ -1,10 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import {
+  Bot,
+  Boxes,
+  CheckCircle2,
+  Database,
+  Eye,
+  EyeOff,
+  FileText,
+  Loader2,
+  Play,
+  Square,
+  Terminal,
+} from "lucide-react";
 
 import { UserPageLayout } from "@/components/user/UserPageLayout";
-import { FileExplorer } from "@/components/workspace/FileExplorer";
 import { EditorTabs } from "@/components/workspace/EditorTabs";
+import { FileExplorer } from "@/components/workspace/FileExplorer";
 import { MonacoEditor } from "@/components/workspace/MonacoEditor";
 import { PreviewPanel } from "@/components/workspace/PreviewPanel";
 
@@ -17,6 +29,18 @@ import type {
   WorkspaceProject,
 } from "@/types/workspace";
 
+const COLORS = {
+  copper: "#D97C48",
+  copperDark: "#C96A39",
+  border: "#E6B79B",
+  panel: "#FFFFFF",
+  panelSoft: "#FFFDFC",
+  text: "#2F231D",
+  textSoft: "#75645B",
+  line: "#E9E3DF",
+  success: "#31A66A",
+};
+
 function buildFileTree(files: WorkspaceFile[]): TreeNode[] {
   const root: TreeNode[] = [];
 
@@ -28,14 +52,12 @@ function buildFileTree(files: WorkspaceFile[]): TreeNode[] {
     let currentPath = "";
 
     parts.forEach((part, index) => {
-      currentPath = currentPath
-        ? `${currentPath}/${part}`
-        : part;
+      currentPath = currentPath ? `${currentPath}/${part}` : part;
 
       const isFile = index === parts.length - 1;
 
       let node = currentLevel.find(
-        (currentNode) => currentNode.name === part
+        (currentNode) => currentNode.name === part,
       );
 
       if (!node) {
@@ -65,9 +87,7 @@ function buildFileTree(files: WorkspaceFile[]): TreeNode[] {
       return firstNode.name.localeCompare(secondNode.name);
     });
 
-    nodes.forEach((node) => {
-      sortNodes(node.children);
-    });
+    nodes.forEach((node) => sortNodes(node.children));
   }
 
   sortNodes(root);
@@ -77,7 +97,7 @@ function buildFileTree(files: WorkspaceFile[]): TreeNode[] {
 
 function collectFolderPaths(
   nodes: TreeNode[],
-  paths = new Set<string>()
+  paths = new Set<string>(),
 ) {
   for (const node of nodes) {
     if (node.type === "folder") {
@@ -92,23 +112,23 @@ function collectFolderPaths(
 export default function ProjectWorkspacePage() {
   const { id } = useParams();
 
-  const [project, setProject] =
-    useState<WorkspaceProject | null>(null);
+  const [project, setProject] = useState<WorkspaceProject | null>(
+    null,
+  );
 
-  const [expandedFolders, setExpandedFolders] =
-    useState<Set<string>>(new Set());
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
+    new Set(),
+  );
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(true);
-  const [isPreviewStarting, setIsPreviewStarting] =
-    useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(
-    null
-  );
+  const [isPreviewStarting, setIsPreviewStarting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState("");
   const [previewKey, setPreviewKey] = useState(0);
+  const [isBuilding, setIsBuilding] = useState(false);
 
   const {
     openTabs,
@@ -129,45 +149,41 @@ export default function ProjectWorkspacePage() {
         }
 
         const data = await getProjectById(id);
-        const loadedProject =
-          data.project as WorkspaceProject;
+        const loadedProject = data.project as WorkspaceProject;
 
         setProject(loadedProject);
 
-        const tree = buildFileTree(
-          loadedProject.files || []
-        );
+        const tree = buildFileTree(loadedProject.files || []);
 
-        setExpandedFolders(
-          collectFolderPaths(tree)
-        );
+        setExpandedFolders(collectFolderPaths(tree));
 
         const preferredFile =
           loadedProject.files?.find(
-            (file) =>
-              file.path === "client/src/App.tsx"
+            (file) => file.path === "client/src/App.tsx",
           ) ||
           loadedProject.files?.find(
-            (file) =>
-              file.path.startsWith("client/src/")
+            (file) => file.path === "client/src/App.jsx",
+          ) ||
+          loadedProject.files?.find((file) =>
+            file.path.startsWith("client/src/"),
           ) ||
           loadedProject.files?.[0];
 
         if (preferredFile) {
           openFile(preferredFile);
         }
-      } catch (err) {
+      } catch (loadError) {
         setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to load project."
+          loadError instanceof Error
+            ? loadError.message
+            : "Failed to load project.",
         );
       } finally {
         setLoading(false);
       }
     }
 
-    loadProject();
+    void loadProject();
   }, [id]);
 
   const fileTree = useMemo(() => {
@@ -189,16 +205,25 @@ export default function ProjectWorkspacePage() {
   }
 
   function runPreview() {
+    if (isPreviewStarting) return;
+
+    setIsPreviewOpen(true);
     setIsPreviewStarting(true);
     setPreviewError("");
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       setIsPreviewStarting(false);
 
       setPreviewError(
-        "The Preview interface is ready, but the backend preview runner is not implemented yet."
+        "The workspace interface is ready, but the backend preview runner has not been connected yet.",
       );
     }, 1200);
+  }
+
+  function stopPreview() {
+    setPreviewUrl(null);
+    setPreviewError("");
+    setIsPreviewStarting(false);
   }
 
   function refreshPreview() {
@@ -207,144 +232,389 @@ export default function ProjectWorkspacePage() {
     setPreviewKey((currentKey) => currentKey + 1);
   }
 
+  function runBuild() {
+    if (isBuilding) return;
+
+    setIsBuilding(true);
+
+    window.setTimeout(() => {
+      setIsBuilding(false);
+    }, 1200);
+  }
+
   return (
-    <UserPageLayout
-      title={project?.title || "EVOKE Workspace"}
-      subtitle="Review, edit, and preview the generated application."
-    >
+    <UserPageLayout title="" subtitle="">
       {loading && (
-        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 p-6 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
+        <div
+          className="flex items-center gap-3 rounded-2xl border bg-white p-6"
+          style={{
+            borderColor: COLORS.line,
+            color: COLORS.textSoft,
+          }}
+        >
+          <Loader2
+            className="h-5 w-5 animate-spin"
+            style={{ color: COLORS.copper }}
+          />
+
           Loading workspace...
         </div>
       )}
 
       {error && (
-        <div className="rounded-2xl border border-red-400/20 bg-red-400/5 p-6 text-red-300">
+        <div className="rounded-2xl border border-[#F2DDD3] bg-[#FFF8F5] p-6 text-[#B56557]">
           {error}
         </div>
       )}
 
       {!loading && !error && project && (
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#080c14] shadow-2xl">
-          <div className="flex h-12 items-center justify-between border-b border-white/10 bg-[#0c111d] px-4">
-            <div className="flex items-center gap-4">
-              <div>
-                <p className="text-sm font-semibold text-white">
-                  {project.title}
-                </p>
+        <div className="space-y-3">
+          <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1
+                  className="text-xl font-semibold sm:text-2xl"
+                  style={{ color: COLORS.text }}
+                >
+                  {project.title || "Project Management"}
+                </h1>
 
-                <p className="text-[11px] text-muted-foreground">
-                  EVOKE IDE
-                </p>
+                <span
+                  className="rounded-lg px-3 py-1 text-xs font-semibold"
+                  style={{
+                    backgroundColor: "#FFF1E8",
+                    color: COLORS.copperDark,
+                  }}
+                >
+                  EVOKE Workspace
+                </span>
               </div>
 
-              <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[11px] font-medium text-emerald-300">
-                {project.status}
-              </span>
+              <p
+                className="mt-1 text-sm"
+                style={{ color: COLORS.textSoft }}
+              >
+                Review, edit, and preview your generated application.
+              </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="hidden items-center gap-2 text-xs text-muted-foreground md:flex">
-                <span>{project.framework}</span>
-                <span>•</span>
-                <span>{project.backend}</span>
-                <span>•</span>
-                <span>{project.database}</span>
+            <div className="grid gap-3 sm:grid-cols-2 lg:flex lg:items-stretch">
+              <TopInfoCard
+                label="Framework"
+                content={
+                  <div className="flex items-center gap-3">
+                    <Boxes
+                      className="h-4 w-4"
+                      style={{ color: COLORS.copper }}
+                    />
+
+                    <span className="text-[#5B8DEF]">⚛</span>
+                    <span>EX</span>
+
+                    <Database className="h-4 w-4 text-[#31A66A]" />
+                  </div>
+                }
+              />
+
+              <TopInfoCard
+                label="Git status"
+                content={
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="rounded-lg px-2 py-1 text-xs font-semibold"
+                      style={{
+                        backgroundColor: "#F7F3F0",
+                        color: COLORS.text,
+                      }}
+                    >
+                      main ›
+                    </span>
+
+                    <CheckCircle2
+                      className="h-4 w-4"
+                      style={{ color: COLORS.success }}
+                    />
+
+                    <span className="text-xs">All changes saved</span>
+                  </div>
+                }
+              />
+
+              <div
+                className="flex min-h-[72px] min-w-[150px] items-center justify-between gap-5 rounded-xl border bg-white px-5"
+                style={{ borderColor: COLORS.line }}
+              >
+                <p
+                  className="text-xs font-semibold"
+                  style={{ color: COLORS.text }}
+                >
+                  Preview
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsPreviewOpen((currentValue) => !currentValue)
+                  }
+                  className="relative h-7 w-12 rounded-full transition-colors"
+                  style={{
+                    backgroundColor: isPreviewOpen
+                      ? COLORS.copper
+                      : "#DDD7D3",
+                  }}
+                  aria-label={
+                    isPreviewOpen ? "Hide preview" : "Show preview"
+                  }
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${
+                      isPreviewOpen ? "left-6" : "left-1"
+                    }`}
+                  />
+                </button>
               </div>
 
               <button
                 type="button"
                 onClick={() =>
-                  setIsPreviewOpen(
-                    (currentValue) => !currentValue
-                  )
+                  setIsPreviewOpen((currentValue) => !currentValue)
                 }
-                className="inline-flex h-8 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 text-xs font-medium text-slate-300 transition hover:bg-white/10 hover:text-white"
+                className="inline-flex min-h-[72px] items-center justify-center gap-2 rounded-xl border px-5 text-sm font-semibold text-white"
+                style={{
+                  borderColor: COLORS.copperDark,
+                  backgroundColor: COLORS.copper,
+                }}
               >
                 {isPreviewOpen ? (
                   <>
-                    <EyeOff className="h-3.5 w-3.5" />
+                    <EyeOff className="h-4 w-4" />
                     Hide Preview
                   </>
                 ) : (
                   <>
-                    <Eye className="h-3.5 w-3.5" />
+                    <Eye className="h-4 w-4" />
                     Show Preview
                   </>
                 )}
               </button>
             </div>
-          </div>
+          </section>
 
-          <div
-            className={`grid h-[calc(100vh-180px)] min-h-[760px] ${
-              isPreviewOpen
-                ? "grid-cols-[250px_minmax(420px,1fr)_minmax(360px,0.8fr)]"
-                : "grid-cols-[280px_minmax(0,1fr)]"
-            }`}
+          <section
+            className="overflow-hidden rounded-[22px] border bg-white"
+            style={{ borderColor: COLORS.border }}
           >
-            <FileExplorer
-              tree={fileTree}
-              selectedPath={activeTabPath}
-              expandedFolders={expandedFolders}
-              onToggleFolder={toggleFolder}
-              onOpenFile={openFile}
-            />
-
-            <main className="flex min-w-0 flex-col bg-[#0b0f1a]">
-              <EditorTabs
-                tabs={openTabs}
-                activeTabPath={activeTabPath}
-                onSelect={selectTab}
-                onClose={closeTab}
+            <div
+              className={`grid h-[610px] min-h-[520px] max-h-[calc(100vh-240px)] overflow-hidden ${
+                isPreviewOpen
+                  ? "grid-cols-[250px_minmax(420px,1.05fr)_minmax(390px,0.95fr)]"
+                  : "grid-cols-[260px_minmax(0,1fr)]"
+              }`}
+            >
+              <FileExplorer
+                tree={fileTree}
+                selectedPath={activeTabPath}
+                expandedFolders={expandedFolders}
+                onToggleFolder={toggleFolder}
+                onOpenFile={openFile}
               />
 
-              <div className="min-h-0 flex-1">
-                <MonacoEditor
-                  activeTab={activeTab}
-                  onChange={updateActiveFile}
+              <main className="flex min-h-0 min-w-0 flex-col bg-white">
+                <EditorTabs
+                  tabs={openTabs}
+                  activeTabPath={activeTabPath}
+                  onSelect={selectTab}
+                  onClose={closeTab}
+                />
+
+                <div className="min-h-0 flex-1 overflow-hidden">
+                  <MonacoEditor
+                    activeTab={activeTab}
+                    onChange={updateActiveFile}
+                  />
+                </div>
+
+                <div
+                  className="flex h-8 shrink-0 items-center justify-between border-t px-3 text-[10px]"
+                  style={{
+                    borderColor: COLORS.line,
+                    backgroundColor: COLORS.panelSoft,
+                    color: COLORS.textSoft,
+                  }}
+                >
+                  <div className="flex items-center gap-4">
+                    <span>{activeTab?.language || "plaintext"}</span>
+
+                    {activeTab?.isDirty && (
+                      <span style={{ color: COLORS.copper }}>
+                        Unsaved changes
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span>UTF-8</span>
+                    <span>Spaces: 2</span>
+                    <span>Ln 1, Col 1</span>
+                  </div>
+                </div>
+              </main>
+
+              {isPreviewOpen && (
+                <div
+                  key={previewKey}
+                  className="min-h-0 min-w-0 overflow-hidden"
+                >
+                  <PreviewPanel
+                    previewUrl={previewUrl}
+                    isStarting={isPreviewStarting}
+                    error={previewError}
+                    onRun={runPreview}
+                    onRefresh={refreshPreview}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div
+              className="flex h-16 items-center justify-between border-t px-4"
+              style={{
+                borderColor: COLORS.line,
+                backgroundColor: COLORS.panelSoft,
+              }}
+            >
+              <div className="flex items-center gap-3 overflow-x-auto">
+                <BottomAction
+                  label={
+                    isPreviewStarting
+                      ? "Starting..."
+                      : "Run Application"
+                  }
+                  icon={
+                    isPreviewStarting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Play className="h-4 w-4 fill-current" />
+                    )
+                  }
+                  active
+                  disabled={isPreviewStarting}
+                  onClick={runPreview}
+                />
+
+                <BottomAction
+                  label="Stop"
+                  icon={<Square className="h-4 w-4" />}
+                  onClick={stopPreview}
+                />
+
+                <BottomAction
+                  label={isBuilding ? "Building..." : "Build"}
+                  icon={
+                    isBuilding ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Boxes className="h-4 w-4" />
+                    )
+                  }
+                  disabled={isBuilding}
+                  onClick={runBuild}
+                />
+
+                <BottomAction
+                  label="Logs"
+                  icon={<FileText className="h-4 w-4" />}
+                />
+
+                <BottomAction
+                  label="Terminal"
+                  icon={<Terminal className="h-4 w-4" />}
+                />
+
+                <BottomAction
+                  label="AI Chat"
+                  icon={<Bot className="h-4 w-4" />}
                 />
               </div>
 
-              <div className="flex h-7 items-center justify-between border-t border-white/10 bg-[#09101a] px-3 text-[11px] text-slate-400">
-                <div className="flex items-center gap-4">
-                  <span>
-                    {activeTab?.language || "plaintext"}
-                  </span>
-
-                  {activeTab?.isDirty && (
-                    <span className="text-amber-300">
-                      Unsaved changes
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <span>UTF-8</span>
-                  <span>Spaces: 2</span>
-                  <span>Ln 1, Col 1</span>
-                </div>
-              </div>
-            </main>
-
-            {isPreviewOpen && (
               <div
-                key={previewKey}
-                className="min-w-0"
+                className="hidden items-center gap-2 rounded-xl border bg-white px-4 py-2 text-xs xl:flex"
+                style={{
+                  borderColor: COLORS.line,
+                  color: COLORS.textSoft,
+                }}
               >
-                <PreviewPanel
-                  previewUrl={previewUrl}
-                  isStarting={isPreviewStarting}
-                  error={previewError}
-                  onRun={runPreview}
-                  onRefresh={refreshPreview}
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: COLORS.success }}
                 />
+
+                All systems operational
               </div>
-            )}
-          </div>
+            </div>
+          </section>
         </div>
       )}
     </UserPageLayout>
+  );
+}
+
+function TopInfoCard({
+  label,
+  content,
+}: {
+  label: string;
+  content: React.ReactNode;
+}) {
+  return (
+    <div
+      className="min-h-[72px] rounded-xl border bg-white px-5 py-3"
+      style={{ borderColor: COLORS.line }}
+    >
+      <p
+        className="text-[10px] font-semibold uppercase tracking-[0.12em]"
+        style={{ color: COLORS.textSoft }}
+      >
+        {label}
+      </p>
+
+      <div
+        className="mt-2 text-sm font-medium"
+        style={{ color: COLORS.text }}
+      >
+        {content}
+      </div>
+    </div>
+  );
+}
+
+function BottomAction({
+  label,
+  icon,
+  active = false,
+  disabled = false,
+  onClick,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  active?: boolean;
+  disabled?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex h-11 min-w-[112px] shrink-0 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+      style={{
+        borderColor: active ? COLORS.copperDark : COLORS.line,
+        backgroundColor: active ? COLORS.copper : "#FFFFFF",
+        color: active ? "#FFFFFF" : COLORS.text,
+      }}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }

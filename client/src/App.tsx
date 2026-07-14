@@ -8,18 +8,18 @@ import { AgentArchitecture } from "@/components/sections/AgentArchitecture";
 import { Features } from "@/components/sections/Features";
 import { authRoutes } from "./routes/authRoutes";
 
-
 function Landing() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-hidden bg-white">
       <Navbar />
+
       <main>
         <Hero />
         <VoiceStudio />
-        <Workflow />
         <AgentArchitecture />
         <Features />
       </main>
+
       <Footer />
     </div>
   );

@@ -103,7 +103,15 @@ export function createAIProvider() {
 
   return getProviderInstance(providerName);
 }
-
+export const getProviderByName = (
+  providerName
+) => {
+  return getProviderInstance(
+    String(providerName || "")
+      .trim()
+      .toLowerCase()
+  );
+};
 export function clearProviderCache() {
   providerInstances.clear();
 }

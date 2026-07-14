@@ -1555,7 +1555,10 @@ export const applyValidationFixes = (
 };
 
 export const validateGeneratedProject =
-  async ({ dsl, files }) => {
+  async ({ 
+    dsl, 
+    files, 
+    aiProvider = null, }) => {
     if (
       !dsl ||
       typeof dsl !== "object"
@@ -1581,6 +1584,7 @@ export const validateGeneratedProject =
       );
 
     const ai =
+      aiProvider ||
       getProviderForAgent("validation");
 
     let aiResult = {

@@ -672,6 +672,7 @@ const createBackendContext = (dsl) => ({
 
 export const generateBackendFiles = async ({
   dsl,
+  aiProvider = null,
 }) => {
   if (!dsl || typeof dsl !== "object") {
     throw new Error(
@@ -697,7 +698,9 @@ export const generateBackendFiles = async ({
     );
   }
 
-  const ai = getProviderForAgent("backend");
+  const ai =
+  aiProvider ||
+  getProviderForAgent("backend");
 
   const result = await ai.generateJson({
     systemPrompt: buildSystemPrompt(),

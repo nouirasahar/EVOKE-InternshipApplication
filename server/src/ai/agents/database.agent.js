@@ -393,6 +393,7 @@ const createDatabaseContext = (dsl) => {
 
 export const generateDatabaseFiles = async ({
   dsl,
+  aiProvider = null,
 }) => {
   if (!dsl || typeof dsl !== "object") {
     throw new Error(
@@ -415,7 +416,9 @@ export const generateDatabaseFiles = async ({
     );
   }
 
-  const ai = getProviderForAgent("database");
+  const ai =
+  aiProvider ||
+  getProviderForAgent("database");
 
   const result = await ai.generateJson({
     systemPrompt: buildSystemPrompt(),

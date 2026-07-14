@@ -327,6 +327,7 @@ export const generateDsl = async ({
   frontend,
   backend,
   database,
+  aiProvider = null,
 }) => {
   if (
     typeof prompt !== "string" ||
@@ -344,7 +345,9 @@ export const generateDsl = async ({
   const selectedDatabase =
     database || "mongodb";
 
-  const ai = getProviderForAgent("dsl");
+  const ai =
+  aiProvider ||
+  getProviderForAgent("dsl");
 
   const result = await ai.generateJson({
     systemPrompt: `

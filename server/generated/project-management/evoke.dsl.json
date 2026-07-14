@@ -1,0 +1,247 @@
+{
+  "projectName": "project-management",
+  "description": "Modern SaaS project management platform",
+  "frontend": "react-vite",
+  "backend": "express",
+  "database": "mongodb",
+  "authentication": true,
+  "pages": [
+    {
+      "name": "Page 1",
+      "route": "/",
+      "purpose": ""
+    },
+    {
+      "name": "Page 2",
+      "route": "/",
+      "purpose": ""
+    },
+    {
+      "name": "Page 3",
+      "route": "/",
+      "purpose": ""
+    },
+    {
+      "name": "Page 4",
+      "route": "/",
+      "purpose": ""
+    },
+    {
+      "name": "Page 5",
+      "route": "/",
+      "purpose": ""
+    },
+    {
+      "name": "Page 6",
+      "route": "/",
+      "purpose": ""
+    },
+    {
+      "name": "Page 7",
+      "route": "/",
+      "purpose": ""
+    },
+    {
+      "name": "Page 8",
+      "route": "/",
+      "purpose": ""
+    },
+    {
+      "name": "Page 9",
+      "route": "/",
+      "purpose": ""
+    }
+  ],
+  "entities": [
+    {
+      "name": "User",
+      "fields": [
+        {
+          "name": "email",
+          "type": "string",
+          "required": true,
+          "unique": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": false,
+          "unique": false
+        }
+      ]
+    },
+    {
+      "name": "Project",
+      "fields": [
+        {
+          "name": "title",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "deadline",
+          "type": "date",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "members",
+          "type": "array",
+          "required": false,
+          "unique": false
+        }
+      ]
+    },
+    {
+      "name": "Task",
+      "fields": [
+        {
+          "name": "title",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "dueDate",
+          "type": "date",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "labels",
+          "type": "array",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "checklist",
+          "type": "array",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "project",
+          "type": "reference",
+          "required": false,
+          "unique": false
+        }
+      ]
+    },
+    {
+      "name": "Team",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "name": "members",
+          "type": "array",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "roles",
+          "type": "array",
+          "required": false,
+          "unique": false
+        }
+      ]
+    },
+    {
+      "name": "Message",
+      "fields": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "unique": false
+        },
+        {
+          "name": "sender",
+          "type": "reference",
+          "required": false,
+          "unique": false
+        },
+        {
+          "name": "receiver",
+          "type": "reference",
+          "required": false,
+          "unique": false
+        }
+      ]
+    }
+  ],
+  "api": [],
+  "features": [
+    "Beautiful analytics dashboard",
+    "KPI cards",
+    "Recent activity",
+    "Interactive charts",
+    "Notifications",
+    "Responsive layout",
+    "Dark and Light mode",
+    "Kanban board",
+    "Drag and drop",
+    "Comments",
+    "Attachments",
+    "Due dates",
+    "Priority",
+    "Labels",
+    "Checklist",
+    "Activity history",
+    "Team chat",
+    "Mention users"
+  ]
+}

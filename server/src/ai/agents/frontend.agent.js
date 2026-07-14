@@ -422,6 +422,7 @@ const ensureRequiredFrontendFiles = (
 export const generateFrontendFiles = async ({
   dsl,
   designSystem = null,
+  aiProvider = null,
 }) => {
   if (!dsl || typeof dsl !== "object") {
     throw new Error(
@@ -432,7 +433,9 @@ export const generateFrontendFiles = async ({
   const selectedFrontend =
     dsl.frontend || "react-vite";
 
-  const ai = getProviderForAgent("ui");
+  const ai =
+  aiProvider ||
+  getProviderForAgent("ui");
 
   const result = await ai.generateJson({
     systemPrompt: buildSystemPrompt(),
